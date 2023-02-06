@@ -72,7 +72,11 @@ class BASE_CLASS_NAME {
         /* ACF_START */// Enforce Advanced Custom Fields plugin as dependency.
 		add_action( 'admin_init', [ $this, 'acf_is_active' ] );/* ACF_END */
         /* POST_TYPE_START */// Create Advanced Custom Fields options sub-page.
-		add_action( 'init', [ $this, 'add_options_sub_page' ] );/* SIDEBARS_START */
+		add_action( 'init', [ $this, 'add_options_sub_page' ] );
+        // Registers custom blocks
+        //add_action( 'init', [ $this, 'register_blocks' ] );
+        // Add blocks by default
+        //add_action( 'init', [ $this, 'default_blocks' ] );
 	}
 
 	/**
@@ -84,7 +88,18 @@ class BASE_CLASS_NAME {
 		return untrailingslashit( plugin_dir_path( __FILE__ ) );
 	}
 
-    /* ACF_START *//**
+    /**
+     * Get the plugin url path. Used for accessing resources, e.g. images, that reside in your plugin folder.
+     *
+     * @return string
+     */
+    public static function plugin_url() : string {
+        return untrailingslashit( plugin_dir_url( __FILE__ ) );
+    }
+    /* POST_TYPE_END */
+
+    /* ACF_START */
+    /**
 	 * Check for ACF Pro before activating this plugin
 	 */
 	public function acf_is_active() : void {
@@ -99,7 +114,8 @@ class BASE_CLASS_NAME {
         }
 	}/* ACF_END */
 
-    /* POST_TYPE_START *//**
+    /* POST_TYPE_START */
+    /**
 	 * Add ACF Options Sub Page to post type menus.
 	 */
 	public function add_options_sub_page() : void {
@@ -115,6 +131,42 @@ class BASE_CLASS_NAME {
             }
         }
 	}
+
+    /**
+     * Registers the blocks
+     *
+     * @return void
+     */
+    private function register_blocks() : void {
+        // Register the blocks
+        register_block_type( __DIR__ . '/blocks' );
+    }
+
+    /**
+     * Adds the blocks
+     *
+     * @return void
+     */
+    private function default_blocks(): void {
+        /** EXAMPLE BLOCK BELOW */
+        /*
+        $post_type_object           = get_post_type_object( BASE_CLASS_NAME::ADD_POST_TYPE_HERE );
+        $post_type_object->template = apply_filters( POST_TYPE_NAME_HERE . '_default_blocks', [
+            [
+                'acf/block-name-here',
+                [
+                    [
+                        'lock' => [
+                            'move'   => TRUE,
+                            'remove' => TRUE,
+                        ],
+                    ],
+                ],
+            ],
+        ], $post_type_object->template );
+        */
+
+    }
 
     /* POST_TYPE_END *//* ACF_START *//**
 	 * Error notice if ACF Pro not installed.
