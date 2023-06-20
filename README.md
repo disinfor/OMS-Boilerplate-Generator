@@ -25,6 +25,9 @@
 
 ## Updates
 
+### 6/20/23 - v2.1.1
+- Update: zip file now contains plugin name. Handy if creating multiple CPTs at once.
+
 ### 2/6/23 - v2.1.0 
 - Update: Adds methods to register and add default Gutenberg blocks
 - Update: Updates index.php to create the template for the block.json in blocks/block.json

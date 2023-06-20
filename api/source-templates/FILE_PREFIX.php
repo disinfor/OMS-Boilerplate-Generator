@@ -4,7 +4,7 @@
 Plugin Name: PLUGIN_NAME
 Plugin URI: http://www.orbitmedia.com
 Description: A brief description of the PLUGIN_NAME.
-Version: 2.0.0
+Version: 2.1.1
 Author: Orbit Media Studios
 Author URI: http://www.orbitmedia.com
 */
