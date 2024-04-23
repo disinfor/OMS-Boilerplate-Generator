@@ -41,7 +41,7 @@ function FUNCTION_PREFIX_get_template_part( mixed $slug, string $name = '' ) :vo
  *
  * @return void
  */
-function block_render_template() : void {
+function FUNCTION_PREFIX_block_render_template() : void {
     $template = '';
 
     if ( file_exists( get_stylesheet_directory() . '/FILE_PREFIX/block/block-render-template.php' ) ) :

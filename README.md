@@ -24,6 +24,8 @@
 
 
 ## Updates
+### 4/23/24 - v2.2
+- Update: Prefixes the default `block_render_template` function with plugin namespace.
 
 ### 6/20/23 - v2.1.1
 - Update: zip file now contains plugin name. Handy if creating multiple CPTs at once.

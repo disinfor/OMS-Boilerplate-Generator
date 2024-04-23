@@ -4,7 +4,7 @@
 Plugin Name: PLUGIN_NAME
 Plugin URI: http://www.orbitmedia.com
 Description: A brief description of the PLUGIN_NAME.
-Version: 2.1.1
+Version: 2.2
 Author: Orbit Media Studios
 Author URI: http://www.orbitmedia.com
 */
@@ -137,7 +137,7 @@ class BASE_CLASS_NAME {
      *
      * @return void
      */
-    private function register_blocks() : void {
+    public function register_blocks() : void {
         // Register the blocks
         register_block_type( __DIR__ . '/blocks' );
     }
@@ -147,7 +147,7 @@ class BASE_CLASS_NAME {
      *
      * @return void
      */
-    private function default_blocks(): void {
+    public function default_blocks(): void {
         /** EXAMPLE BLOCK BELOW */
         /*
         $post_type_object           = get_post_type_object( BASE_CLASS_NAME::ADD_POST_TYPE_HERE );
