@@ -1,18 +1,23 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
-
 // Change origin from * to application url.
 header( "Access-Control-Allow-Origin: *" );
-header( "Access-Control-Allow-Methods: POST, OPTIONS" );
-header( "Access-Control-Allow-Headers: Content-Disposition, Content-Type, Content-Length, Accept-Encoding" );
+header( 'Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS' );
+header( "Access-Control-Expose-Headers: Content-Length, X-JSON" );
+header( "Access-Control-Allow-Headers: Content-Disposition, Content-Type, Content-Length, Accept-Encoding, Origin, Accept" );
 header( "Content-type: application/json" );
+
+// Handle preflight OPTIONS request.
+if ( $_SERVER['REQUEST_METHOD'] === 'OPTIONS' ) {
+    http_response_code( 200 );
+    exit();
+}
 
 // Plugin data from frontend.
 $data = json_decode( file_get_contents( 'php://input' ), TRUE );
 
 if ( ! empty( $data ) ) {
-    $boilerplate = ( new OMS_Boilerplate( $data ) )->makePlugin();
+    ( new OMS_Boilerplate( $data ) )->makePlugin();
 }
 ?>
 
@@ -35,6 +40,20 @@ if ( ! empty( $data ) ) {
     public $includeTemplate = TRUE;
 
     public $includeACF = TRUE;
+
+    // Declare dynamic properties to avoid PHP 8.2+ deprecation.
+    public $pluginName = '';
+    public $baseClassName = '';
+    public $filePrefix = 'oms-plugin';
+    public $functionPrefix = '';
+    public $postTypes = [];
+    public $taxonomies = [];
+    public $postTypeNames = '';
+    public $taxonomyNames = '';
+    public $includeFiles = [];
+    public $otherSettings = [];
+    public $download = NULL;
+    public $errors = [];
 
     public function __construct( $data = FALSE ) {
 
@@ -110,8 +129,8 @@ if ( ! empty( $data ) ) {
                         break;
                 }
 
-            } else {
-                $this->{$property} = filter_var( $value, FILTER_SANITIZE_STRING );
+            } elseif ( ! is_array( $value ) ) {
+                $this->{$property} = htmlspecialchars( (string) $value, ENT_QUOTES, 'UTF-8' );
             }
         }
     }
@@ -152,14 +171,25 @@ if ( ! empty( $data ) ) {
     private function writeFile( $sourceFile, $file, $dir = FALSE ) {
         $destinationDir = $dir ? DESTINATION_DIR . '/' . $dir : DESTINATION_DIR;
 
+        // Ensure destination directory exists.
+        if ( ! is_dir( $destinationDir ) ) {
+            mkdir( $destinationDir, 0755, TRUE );
+        }
+
         // String replacement operation on file contents.
         $newFile = str_replace( self::SEARCH, $this->getReplacementProperties(), $sourceFile );
 
         // String replacement on source file name for use in new file name.
-        $handle = fopen( str_replace( self::SEARCH, $this->getReplacementProperties(), $destinationDir . '/' . $file ), 'w' );
+        $filePath = str_replace( self::SEARCH, $this->getReplacementProperties(), $destinationDir . '/' . $file );
+        $handle = fopen( $filePath, 'w' );
+
+        if ( $handle === FALSE ) {
+            throw new \Exception( "Unable to open file for writing: {$filePath}" );
+        }
 
         // Write updated file content to new destination file.
         fwrite( $handle, $newFile );
+        fclose( $handle );
     }
 
     /**
@@ -587,18 +617,47 @@ if ( ! empty( $data ) ) {
 
         $filename = sprintf( 'oms-plugin-%s-%s.zip', strtolower( str_replace( ' ', '-', $this->pluginName ) ), $hashedPrefix );
 
-        $zipper = new \Chumper\Zipper\Zipper;
-
-        $zipper->make( sprintf( './tmp/%s', $filename ) )
-               ->folder( $this->filePrefix )
-               ->add( DESTINATION_DIR )->close();
-
         $tmpFile = sprintf( './tmp/%s', $filename );
 
+        // Ensure tmp directory exists.
+        if ( ! is_dir( './tmp' ) ) {
+            mkdir( './tmp', 0755, TRUE );
+        }
+
+        // Use native ZipArchive instead of chumper/zipper.
+        $zip = new \ZipArchive();
+
+        if ( $zip->open( $tmpFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE ) === TRUE ) {
+            $this->addFolderToZip( DESTINATION_DIR, $zip, $this->filePrefix );
+            $zip->close();
+        }
+
         if ( file_exists( $tmpFile ) ) {
-            self::delTree( DESTINATION_DIR );
             echo $filename;
-            die();
+            self::delTree( DESTINATION_DIR );
+            exit();
+        }
+    }
+
+    /**
+     * Recursively add folder contents to zip archive.
+     *
+     * @param string      $folder
+     * @param \ZipArchive $zip
+     * @param string      $zipFolder
+     */
+    private function addFolderToZip( $folder, $zip, $zipFolder ) {
+        $files = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator( $folder, \RecursiveDirectoryIterator::SKIP_DOTS ),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ( $files as $file ) {
+            if ( ! $file->isDir() ) {
+                $filePath     = $file->getRealPath();
+                $relativePath = $zipFolder . '/' . substr( $filePath, strlen( $folder ) + 1 );
+                $zip->addFile( $filePath, $relativePath );
+            }
         }
     }
 

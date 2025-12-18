@@ -1,19 +1,19 @@
 import React, {Component, Fragment} from 'react';
 import pluralize from 'pluralize';
 import {
-	Grid,
-	Container,
 	Box,
-	TextField,
-	FormGroup,
-	FormLabel,
-	FormControl,
-	FormHelperText,
-	FormControlLabel,
-	Checkbox,
 	Button,
+	Checkbox,
+	Container,
+	FormControl,
+	FormControlLabel,
+	FormGroup,
+	FormHelperText,
+	FormLabel,
+	Grid,
+	TextField,
 	Typography
-} from '@material-ui/core';
+} from '@mui/material';
 import axios from 'axios';
 
 import {PhpClass, FileName, FunctionName} from './components/CodeSamples';
