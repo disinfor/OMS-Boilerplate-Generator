@@ -1,6 +1,6 @@
 <?php
 /**
- * @version 2.2
+ * @version 2.3.0
  *
  * This is the main template for the PLUGIN_NAME archive listing. To use your own template, save a copy of this file
  * into a folder with the name FILE_PREFIX in your main theme directory.

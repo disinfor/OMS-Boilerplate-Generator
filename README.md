@@ -24,6 +24,15 @@
 
 
 ## Updates
+### 12/18/25 - v2.3.0
+- Update: Migrated from @material-ui/core to @mui/material (MUI v5)
+- Update: Updated React to v18 (createRoot API)
+- Update: PHP 8.4 compatibility - replaced chumper/zipper with native ZipArchive
+- Update: Fixed FILTER_SANITIZE_STRING deprecation
+- Update: Added class property declarations for PHP 8.2+ compatibility
+- Update: Added CORS preflight OPTIONS request handling
+- Housekeeping: Removed composer dependencies (no longer needed)
+
 ### 4/23/24 - v2.2
 - Update: Prefixes the default `block_render_template` function with plugin namespace.
 
